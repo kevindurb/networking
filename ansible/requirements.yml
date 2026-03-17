@@ -1,0 +1,8 @@
+---
+roles: []
+
+collections:
+  - community.general
+  # - community.openwrt
+  - git+https://github.com/ansible-collections/community.openwrt
+  - ansible.posix

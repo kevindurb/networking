@@ -1,0 +1,19 @@
+---
+- hosts: router
+  gather_facts: false
+  roles:
+    - community.openwrt.init
+  tasks:
+    - name: Gather OpenWrt facts
+      community.openwrt.setup:
+
+    - name: Install a package
+      community.openwrt.opkg:
+        name: luci
+        state: present
+
+    - name: Configure UCI settings
+      community.openwrt.uci:
+        command: set
+        key: system.@system[0].hostname
+        value: router
