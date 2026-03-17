@@ -13,5 +13,5 @@ wireguard_peers:
   - name: router
     public_key: MZ/zdKybVBhCRRvBTj5P/XHo9bKcAH/HuH81cWUIjnw=
     allowed_ips: 10.100.100.1/24
-    endpoint: 0.0.0.0:51820
+    endpoint: 0.0.0.0:51820 # TODO: put in host
     persistent_keepalive: 25
