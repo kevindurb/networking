@@ -7,13 +7,50 @@
     - name: Gather OpenWrt facts
       community.openwrt.setup:
 
-    - name: Install a package
-      community.openwrt.opkg:
-        name: luci
-        state: present
-
-    - name: Configure UCI settings
+    - name: Set hostname
       community.openwrt.uci:
         command: set
         key: system.@system[0].hostname
         value: router
+
+    - name: Disable ipv6
+      community.openwrt.uci:
+        command: set
+        key: network.@device[0].ipv6
+        value: '0'
+
+    - name: Set lan ip
+      community.openwrt.uci:
+        command: set
+        key: network.lan.ipaddr
+        value: 192.168.1.1
+
+    - name: Set lan netmask
+      community.openwrt.uci:
+        command: set
+        key: network.lan.netmask
+        value: 255.255.0.0
+
+    - name: Set lan device
+      community.openwrt.uci:
+        command: set
+        key: network.lan.device
+        value: br-lan
+
+    - name: Disable ipv6 delegation
+      community.openwrt.uci:
+        command: set
+        key: network.lan.delegate
+        value: '0'
+
+    - name: Disable isp dns
+      community.openwrt.uci:
+        command: set
+        key: network.wan.peerdns
+        value: '0'
+
+    - name: Set wan dns
+      community.openwrt.uci:
+        command: set
+        key: network.wan.dns
+        value: [1.1.1.1, 1.0.0.1, 8.8.8.8, 8.8.4.4]
