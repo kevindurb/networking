@@ -12,6 +12,6 @@ wireguard_private_key: !vault |
 
 wireguard_peers:
   - name: workmac
-    public_key: fakefakefakefake
-    allowed_ips: 10.100.100.2/24
+    public_key: GGk57XYiIFweIz7GD/MKVmDeJlb3wGmMv9ON7q1lhB0=
+    allowed_ips: 10.100.100.2/32
     persistent_keepalive: 25
