@@ -1,5 +1,6 @@
 ---
-- hosts: router
+- name: Provision Router
+  hosts: router
   gather_facts: false
   roles:
     - community.openwrt.init
