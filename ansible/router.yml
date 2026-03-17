@@ -19,38 +19,25 @@
         key: network.@device[0].ipv6
         value: '0'
 
-    - name: Set lan ip
+    - name: Setup lan settings
       community.openwrt.uci:
         command: set
-        key: network.lan.ipaddr
-        value: 192.168.1.1
+        config: network
+        section: lan
+        value:
+          device: br-lan
+          proto: static
+          ipaddr: 192.168.1.1
+          netmask: 255.255.0.0
+          delegate: '0'
 
-    - name: Set lan netmask
+    - name: Setup wan settings
       community.openwrt.uci:
         command: set
-        key: network.lan.netmask
-        value: 255.255.0.0
-
-    - name: Set lan device
-      community.openwrt.uci:
-        command: set
-        key: network.lan.device
-        value: br-lan
-
-    - name: Disable ipv6 delegation
-      community.openwrt.uci:
-        command: set
-        key: network.lan.delegate
-        value: '0'
-
-    - name: Disable isp dns
-      community.openwrt.uci:
-        command: set
-        key: network.wan.peerdns
-        value: '0'
-
-    - name: Set wan dns
-      community.openwrt.uci:
-        command: set
-        key: network.wan.dns
-        value: [1.1.1.1, 1.0.0.1, 8.8.8.8, 8.8.4.4]
+        config: network
+        section: wan
+        value:
+          device: eth1
+          proto: dhcp
+          peerdns: '0'
+          dns: [1.1.1.1, 1.0.0.1, 8.8.8.8, 8.8.4.4]
