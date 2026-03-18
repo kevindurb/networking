@@ -1,8 +1,13 @@
-pubkey host:
+default:
+  @just --list
+
+key host:
   cd ansible; \
   yq .wireguard_private_key "./inventory/host_vars/{{host}}.yml" \
-  | ansible-vault decrypt \
-  | wg pubkey
+  | ansible-vault decrypt
+
+pubkey host:
+  just prikey {{host}} | wg pubkey
 
 genkey:
   cd ansible; \
