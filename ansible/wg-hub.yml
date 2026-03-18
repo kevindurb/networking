@@ -9,8 +9,8 @@
       community.openwrt.setup:
 
     - name: Install wireguard
-      community.openwrt.opkg:
-        name: wireguard-tools
+      community.openwrt.apk:
+        name: luci-proto-wireguard
         state: present
 
     - name: Create wireguard config dir
