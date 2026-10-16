@@ -1,0 +1,10 @@
+---
+# System identity and logging. The hostname is intentionally not a default --
+# it is set per AP in the inventory (ap_hostname).
+ap_common_timezone: MST7MDT,M3.2.0,M11.1.0
+ap_common_zonename: America/Denver
+ap_common_ntp_servers:
+  - 0.openwrt.pool.ntp.org
+  - 1.openwrt.pool.ntp.org
+  - 2.openwrt.pool.ntp.org
+  - 3.openwrt.pool.ntp.org

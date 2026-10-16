@@ -1,0 +1,11 @@
+---
+# The EAP245 v3 is a dumb AP: one LAN bridge (br-lan) and no WAN. These tasks
+# pin the static management address and strip the DHCP/RA duties the router
+# already provides.
+ap_network_lan_device: br-lan
+# The management address is the host's connection address (192.168.1.2/.3).
+ap_network_lan_ipaddr: "{{ ansible_host }}"
+ap_network_lan_netmask: 255.255.0.0
+ap_network_lan_gateway: 192.168.1.1
+ap_network_lan_dns:
+  - 192.168.1.1

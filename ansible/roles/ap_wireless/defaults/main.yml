@@ -1,0 +1,26 @@
+---
+# Radio sections. mac80211 reports these as radio0 (2.4 GHz, ath9k) and radio1
+# (5 GHz, ath10k) on the EAP245 v3; the playbook verifies this before writing.
+ap_wireless_radio_2g: radio0
+ap_wireless_radio_5g: radio1
+
+# Channels. The per-AP values in inventory/prod.yml override these so the two
+# APs stay on non-overlapping channels.
+ap_wireless_channel_2g: 1
+ap_wireless_channel_5g: 36
+ap_wireless_htmode_2g: HT20
+ap_wireless_htmode_5g: VHT80
+ap_wireless_country: US
+ap_wireless_encryption: psk2
+
+# Roaming: every AP shares one SSID/PSK, with 802.11k/v/r enabled. `mobility_
+# domain` groups the APs for fast BSS transition (802.11r).
+ap_wireless_ieee80211k: '1'
+ap_wireless_ieee80211r: '1'
+ap_wireless_bss_transition: '1'
+ap_wireless_mobility_domain: '4f57'
+ap_wireless_ft_over_ds: '1'
+ap_wireless_ft_psk_generate_local: '1'
+
+# ap_wireless_ssid and ap_wireless_key come from group_vars/aps.yml, which
+# pulls them from the encrypted group_vars/aps/vault.yml.

@@ -1,0 +1,88 @@
+---
+# --- Dropbear (SSH) ---------------------------------------------------------
+# Password auth is off; only the authorized_keys on the AP are accepted. Those
+# keys are managed manually (secrets are not stored in this repo) -- see
+# README.md.
+- name: Configure dropbear
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        key: dropbear.@dropbear[0].Port
+        value: "{{ ap_services_dropbear_port }}"
+      - command: set
+        key: dropbear.@dropbear[0].PasswordAuth
+        value: 'off'
+      - command: set
+        key: dropbear.@dropbear[0].RootPasswordAuth
+        value: 'off'
+  notify: restart dropbear
+
+# --- LuCI / uhttpd ----------------------------------------------------------
+- name: Configure uhttpd
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: main
+    type: uhttpd
+    value:
+      listen_http: "{{ ap_services_uhttpd_listen_http }}"
+      listen_https: "{{ ap_services_uhttpd_listen_https }}"
+      redirect_https: '1'
+      rfc1918_filter: '1'
+      home: /www
+    autocommit: true
+  notify: restart uhttpd
+
+- name: Configure uhttpd certificate defaults
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: defaults
+    type: cert
+    value:
+      days: '730'
+      key_type: ec
+      bits: '2048'
+      ec_curve: P-256
+      country: ZZ
+      state: Somewhere
+      location: Unknown
+      commonname: OpenWrt
+    autocommit: true
+  notify: restart uhttpd
+
+# --- Services a dumb AP does not need --------------------------------------
+# The router is the only DHCP/RA/DNS server on the LAN.
+- name: Disable the DHCP and RA servers
+  community.openwrt.service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop:
+    - dnsmasq
+    - odhcpd
+
+# --- Attended sysupgrade ----------------------------------------------------
+- name: Configure attended sysupgrade
+  community.openwrt.uci:
+    command: set
+    config: attendedsysupgrade
+    section: server
+    type: server
+    value:
+      url: "{{ ap_services_attendedsysupgrade_url }}"
+    autocommit: true
+
+- name: Configure attended sysupgrade client
+  community.openwrt.uci:
+    command: set
+    config: attendedsysupgrade
+    section: client
+    type: client
+    value:
+      upgrade_packages: '1'
+      auto_search: '0'
+      advanced_mode: '0'
+      login_check_for_upgrades: '1'
+    autocommit: true

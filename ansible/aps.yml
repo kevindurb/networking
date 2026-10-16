@@ -1,0 +1,23 @@
+---
+# Provision the wireless access points (TP-Link EAP245 v3 running OpenWrt).
+#
+# These are "dumb APs": no routing, no DHCP/RA, no WAN. They bridge a single
+# LAN onto the shared SSID and are managed on their static LAN addresses.
+#
+# Like the router, the APs have no Python, so modules come from the
+# community.openwrt collection (ucode). `serial: 1` applies changes one AP at a
+# time because a wireless reload can briefly drop connectivity.
+#
+# Credentials (SSID + PSK) live in the encrypted group_vars/aps/vault.yml --
+# see README.md.
+- name: Provision Access Points
+  hosts: aps
+  gather_facts: false
+  serial: 1
+  roles:
+    - community.openwrt.init
+    - ap_common
+    - ap_packages
+    - ap_network
+    - ap_wireless
+    - ap_services

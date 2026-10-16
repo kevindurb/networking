@@ -1,0 +1,6 @@
+---
+- name: Install AP packages
+  community.openwrt.apk:
+    name: "{{ ap_packages_list }}"
+    state: present
+    update_cache: true

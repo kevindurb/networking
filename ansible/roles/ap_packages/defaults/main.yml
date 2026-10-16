@@ -1,0 +1,7 @@
+---
+# Packages beyond the base image. The EAP245 v3 has only 16 MB of flash, so
+# keep this list short. `community.openwrt.init` already installs the coreutils
+# helpers the modules want.
+ap_packages_list:
+  - luci-ssl
+  - iperf3

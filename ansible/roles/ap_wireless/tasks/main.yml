@@ -1,0 +1,137 @@
+---
+# Guard against shipping an open network if the vault was never populated.
+- name: Assert the wireless credentials are set
+  ansible.builtin.assert:
+    that:
+      - ap_wireless_ssid | length > 0
+      - ap_wireless_key | length >= 8
+      - "'REPLACE_ME' not in ap_wireless_ssid"
+      - "'REPLACE_ME' not in ap_wireless_key"
+    fail_msg: >-
+      The SSID/PSK are still placeholders. Set them with
+      `ansible-vault edit group_vars/aps/vault.yml` (see README.md).
+  no_log: true
+
+# mac80211 writes an `option band` into each radio section, so verify the
+# section -> band mapping before writing band-specific settings (the wrong
+# channel on a radio is rejected by hostapd).
+- name: Query the band of each radio
+  community.openwrt.command:
+    cmd: "uci -q get wireless.{{ item }}.band"
+  loop:
+    - "{{ ap_wireless_radio_2g }}"
+    - "{{ ap_wireless_radio_5g }}"
+  register: ap_wireless_band_query
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Verify the radio band mapping
+  ansible.builtin.assert:
+    that:
+      - (ap_wireless_band_query.results[0].stdout | trim) == '2g'
+      - (ap_wireless_band_query.results[1].stdout | trim) == '5g'
+    fail_msg: >-
+      '{{ ap_wireless_radio_2g }}' is not 2.4 GHz and/or
+      '{{ ap_wireless_radio_5g }}' is not 5 GHz (got
+      '{{ ap_wireless_band_query.results[0].stdout | trim }}' /
+      '{{ ap_wireless_band_query.results[1].stdout | trim }}'). Run
+      `wifi config` on the AP and retry, or point ap_wireless_radio_2g /
+      ap_wireless_radio_5g at the correct sections in group_vars/aps.yml.
+
+- name: Configure the 2.4 GHz radio
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        key: wireless.{{ ap_wireless_radio_2g }}.channel
+        value: "{{ ap_wireless_channel_2g }}"
+      - command: set
+        key: wireless.{{ ap_wireless_radio_2g }}.htmode
+        value: "{{ ap_wireless_htmode_2g }}"
+      - command: set
+        key: wireless.{{ ap_wireless_radio_2g }}.country
+        value: "{{ ap_wireless_country }}"
+      - command: set
+        key: wireless.{{ ap_wireless_radio_2g }}.disabled
+        value: '0'
+  notify: reload wifi
+
+- name: Configure the 5 GHz radio
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        key: wireless.{{ ap_wireless_radio_5g }}.channel
+        value: "{{ ap_wireless_channel_5g }}"
+      - command: set
+        key: wireless.{{ ap_wireless_radio_5g }}.htmode
+        value: "{{ ap_wireless_htmode_5g }}"
+      - command: set
+        key: wireless.{{ ap_wireless_radio_5g }}.country
+        value: "{{ ap_wireless_country }}"
+      - command: set
+        key: wireless.{{ ap_wireless_radio_5g }}.disabled
+        value: '0'
+  notify: reload wifi
+
+# `command: section` finds the (factory default) wifi-iface bound to the radio
+# and renames it to wlan_2g / wlan_5g; `replace: true` drops any leftover
+# options. redact_keys keeps the SSID/PSK out of --diff output.
+- name: Configure the 2.4 GHz access point
+  community.openwrt.uci:
+    command: section
+    config: wireless
+    type: wifi-iface
+    name: wlan_2g
+    find:
+      device: "{{ ap_wireless_radio_2g }}"
+    value:
+      device: "{{ ap_wireless_radio_2g }}"
+      ifname: wlan2g
+      network: lan
+      mode: ap
+      ssid: "{{ ap_wireless_ssid }}"
+      encryption: "{{ ap_wireless_encryption }}"
+      key: "{{ ap_wireless_key }}"
+      ieee80211k: "{{ ap_wireless_ieee80211k }}"
+      ieee80211r: "{{ ap_wireless_ieee80211r }}"
+      bss_transition: "{{ ap_wireless_bss_transition }}"
+      mobility_domain: "{{ ap_wireless_mobility_domain }}"
+      ft_over_ds: "{{ ap_wireless_ft_over_ds }}"
+      ft_psk_generate_local: "{{ ap_wireless_ft_psk_generate_local }}"
+    replace: true
+    autocommit: true
+    redact_keys:
+      - ssid
+      - key
+  notify: reload wifi
+
+- name: Configure the 5 GHz access point
+  community.openwrt.uci:
+    command: section
+    config: wireless
+    type: wifi-iface
+    name: wlan_5g
+    find:
+      device: "{{ ap_wireless_radio_5g }}"
+    value:
+      device: "{{ ap_wireless_radio_5g }}"
+      ifname: wlan5g
+      network: lan
+      mode: ap
+      ssid: "{{ ap_wireless_ssid }}"
+      encryption: "{{ ap_wireless_encryption }}"
+      key: "{{ ap_wireless_key }}"
+      ieee80211k: "{{ ap_wireless_ieee80211k }}"
+      ieee80211r: "{{ ap_wireless_ieee80211r }}"
+      bss_transition: "{{ ap_wireless_bss_transition }}"
+      mobility_domain: "{{ ap_wireless_mobility_domain }}"
+      ft_over_ds: "{{ ap_wireless_ft_over_ds }}"
+      ft_psk_generate_local: "{{ ap_wireless_ft_psk_generate_local }}"
+    replace: true
+    autocommit: true
+    redact_keys:
+      - ssid
+      - key
+  notify: reload wifi

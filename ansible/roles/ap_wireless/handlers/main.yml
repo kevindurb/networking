@@ -1,0 +1,7 @@
+---
+# Modern OpenWrt (25.12) has no /etc/init.d/wifi; /sbin/wifi drives the
+# wireless stack through netifd.
+- name: Reload wifi
+  community.openwrt.command:
+    cmd: /sbin/wifi reload
+  listen: reload wifi

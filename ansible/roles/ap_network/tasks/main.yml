@@ -1,0 +1,67 @@
+---
+- name: Configure network globals
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        key: network.globals.packet_steering
+        value: '1'
+  notify: reload network
+
+# `command: section` (not `set`) creates the section with the right type if the
+# factory config lacks it, and updates it in place if it exists.
+- name: Configure lan interface (static management address)
+  community.openwrt.uci:
+    command: section
+    config: network
+    type: interface
+    name: lan
+    value:
+      device: "{{ ap_network_lan_device }}"
+      proto: static
+      ipaddr: "{{ ap_network_lan_ipaddr }}"
+      netmask: "{{ ap_network_lan_netmask }}"
+      gateway: "{{ ap_network_lan_gateway }}"
+      dns: "{{ ap_network_lan_dns }}"
+      # Do not request an IPv6 prefix from the router; this AP routes nothing.
+      delegate: '0'
+    autocommit: true
+  notify: reload network
+
+# `command: absent` is a no-op when the section does not exist, so this is safe
+# on the factory config (which has no wan interface).
+- name: Ensure no wan interfaces exist
+  community.openwrt.uci:
+    command: absent
+    config: network
+    type: interface
+    section: "{{ item }}"
+    autocommit: true
+  loop:
+    - wan
+    - wan6
+  notify: reload network
+
+# The router is the only DHCP/RA server on the LAN.
+- name: Disable the lan dhcp server
+  community.openwrt.uci:
+    command: section
+    config: dhcp
+    type: dhcp
+    name: lan
+    value:
+      interface: lan
+      ignore: '1'
+    autocommit: true
+  notify: reload network
+
+- name: Disable odhcpd
+  community.openwrt.uci:
+    command: section
+    config: dhcp
+    type: odhcpd
+    name: odhcpd
+    value:
+      maindhcp: '0'
+    autocommit: true
+  notify: reload network

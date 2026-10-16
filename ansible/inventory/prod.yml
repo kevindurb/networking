@@ -10,3 +10,22 @@ all:
       ansible_host: 100.124.132.94
     travel-router:
       ansible_user: root
+  children:
+    # TP-Link EAP245 v3 access points running OpenWrt, managed by aps.yml.
+    # Their static LAN addresses sit outside the router's DHCP pool
+    # (192.168.1.10-192.168.1.209), so no reservation is needed. The channels
+    # are split so the two APs do not overlap.
+    aps:
+      hosts:
+        south-ap:
+          ansible_user: root
+          ansible_host: 192.168.1.2
+          ap_hostname: south-ap
+          ap_wireless_channel_2g: 1
+          ap_wireless_channel_5g: 36
+        north-ap:
+          ansible_user: root
+          ansible_host: 192.168.1.3
+          ap_hostname: north-ap
+          ap_wireless_channel_2g: 11
+          ap_wireless_channel_5g: 149

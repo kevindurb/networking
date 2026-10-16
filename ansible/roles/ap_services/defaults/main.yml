@@ -1,0 +1,11 @@
+---
+ap_services_dropbear_port: 22
+
+ap_services_uhttpd_listen_http:
+  - 0.0.0.0:80
+  - '[::]:80'
+ap_services_uhttpd_listen_https:
+  - 0.0.0.0:443
+  - '[::]:443'
+
+ap_services_attendedsysupgrade_url: https://sysupgrade.openwrt.org

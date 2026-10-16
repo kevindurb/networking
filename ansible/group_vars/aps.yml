@@ -1,0 +1,9 @@
+---
+# Shared, non-secret variables for the access points. Per-AP values (hostname,
+# LAN address, radio channels) live in inventory/prod.yml.
+#
+# The SSID and PSK are location-revealing, so they are not stored here -- they
+# live in the encrypted group_vars/aps/vault.yml and are only referenced here.
+# Set them with: ansible-vault edit group_vars/aps/vault.yml
+ap_wireless_ssid: "{{ vault_wifi_ssid }}"
+ap_wireless_key: "{{ vault_wifi_psk }}"
