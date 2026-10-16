@@ -1,0 +1,6 @@
+---
+- name: Reload firewall
+  community.openwrt.service:
+    name: firewall
+    state: reloaded
+  listen: reload firewall

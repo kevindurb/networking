@@ -1,0 +1,10 @@
+---
+# The router is a Tailscale subnet router + exit node. `accept_routes` stays
+# off because this node advertises, it does not consume, routes.
+router_tailscale_port: 41641
+router_tailscale_state_file: /etc/tailscale/tailscaled.state
+router_tailscale_advertise_exit_node: true
+router_tailscale_advertise_routes:
+  - 192.168.0.0/16
+router_tailscale_ssh: true
+router_tailscale_disable_magic_dns: true

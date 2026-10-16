@@ -1,0 +1,11 @@
+---
+- name: Install router packages
+  community.openwrt.apk:
+    name: "{{ router_packages_list }}"
+    state: present
+    update_cache: true
+
+- name: Remove retired WireGuard packages
+  community.openwrt.apk:
+    name: "{{ router_packages_absent }}"
+    state: absent

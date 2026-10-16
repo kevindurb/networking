@@ -1,0 +1,35 @@
+---
+- name: Configure system settings
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        key: system.@system[0].hostname
+        value: "{{ router_common_hostname }}"
+      - command: set
+        key: system.@system[0].timezone
+        value: "{{ router_common_timezone }}"
+      - command: set
+        key: system.@system[0].zonename
+        value: "{{ router_common_zonename }}"
+      - command: set
+        key: system.@system[0].ttylogin
+        value: '0'
+      - command: set
+        key: system.@system[0].log_size
+        value: '64'
+      - command: set
+        key: system.@system[0].log_proto
+        value: udp
+      - command: set
+        key: system.@system[0].conloglevel
+        value: '8'
+      - command: set
+        key: system.@system[0].cronloglevel
+        value: '5'
+      - command: set
+        key: system.@system[0].urandom_seed
+        value: '0'
+      - command: set
+        key: system.ntp.server
+        value: "{{ router_common_ntp_servers }}"

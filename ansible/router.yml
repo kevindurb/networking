@@ -1,112 +1,21 @@
 ---
+# Provision the home router (OpenWrt 25.12 on generic x86/64).
+#
+# The router has no Python, so modules are provided by the community.openwrt
+# collection (ucode-based) rather than ansible.builtin.*. The `init` role sets
+# up the connection/host facts those modules rely on.
+#
+# Secrets (dropbear authorized_keys, the tailscale auth key) are intentionally
+# NOT managed here -- see README.md for the manual steps.
 - name: Provision Router
   hosts: router
   gather_facts: false
   roles:
     - community.openwrt.init
-  tasks:
-    - name: Gather OpenWrt facts
-      community.openwrt.setup:
-
-    - name: Set hostname
-      community.openwrt.uci:
-        command: set
-        key: system.@system[0].hostname
-        value: router
-
-    - name: Set timezone
-      community.openwrt.uci:
-        command: set
-        key: system.@system[0].timezone
-        value: MST7MDT,M3.2.0,M11.1.0
-
-    - name: Set zonename
-      community.openwrt.uci:
-        command: set
-        key: system.@system[0].zonename
-        value: America/Denver
-
-    - name: Setup lan settings
-      community.openwrt.uci:
-        command: set
-        config: network
-        section: lan
-        type: interface
-        value:
-          device: br-lan
-          proto: static
-          ipaddr: 192.168.1.1
-          netmask: 255.255.0.0
-          delegate: '0'
-
-    - name: Setup wan settings
-      community.openwrt.uci:
-        command: set
-        config: network
-        section: wan
-        type: interface
-        value:
-          device: eth1
-          proto: dhcp
-          peerdns: '0'
-          dns: [1.1.1.1, 1.0.0.1, 8.8.8.8, 8.8.4.4]
-
-    - name: Setup lan bridge device
-      community.openwrt.uci:
-        command: section
-        config: network
-        type: device
-        find:
-          name: br-lan
-        value:
-          name: br-lan
-          type: bridge
-          ports: [eth0]
-          ipv6: '0'
-
-    - name: Setup dhcp lan
-      community.openwrt.uci:
-        command: set
-        config: dhcp
-        section: lan
-        type: dhcp
-        value:
-          interface: lan
-          start: '10'
-          limit: '200'
-          leasetime: '12h'
-
-    - name: Ignore dhcp on wan
-      community.openwrt.uci:
-        command: set
-        config: dhcp
-        section: wan
-        type: dhcp
-        value:
-          interface: wan
-          ignore: '1'
-
-    - name: Setup dns
-      community.openwrt.uci:
-        command: section
-        config: dhcp
-        type: dnsmasq
-        find:
-          domain: lan
-        value:
-          domainneeded: '1'
-          localise_queries: '1'
-          rebind_protection: '0'
-          local: /lan/
-          domain: lan
-          expandhosts: '1'
-          cachesize: '1000'
-          authoritative: '1'
-          readethers: '1'
-          leasefile: '/tmp/dhcp.leases'
-          resolvfile: '/tmp/resolv.conf.d/resolv.conf.auto'
-          localservice: '0'
-          ednspacket_max: '1232'
-          server:
-            - /beaver-cloud.xyz/192.168.42.53
-            - /ts.net/100.100.100.100
+    - router_common
+    - router_packages
+    - router_network
+    - router_dhcp
+    - router_firewall
+    - router_tailscale
+    - router_services

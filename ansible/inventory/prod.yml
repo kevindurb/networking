@@ -3,5 +3,10 @@ all:
   hosts:
     router:
       ansible_user: root
+      # Reached over Tailscale (the router has Tailscale SSH enabled). Its LAN
+      # address 192.168.1.1 lands on dropbear, which does not accept this
+      # workstation's key, so use the tailnet address instead. The tailnet name
+      # `router` resolves to the same address.
+      ansible_host: 100.124.132.94
     travel-router:
       ansible_user: root

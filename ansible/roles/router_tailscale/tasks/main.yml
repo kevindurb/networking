@@ -1,0 +1,56 @@
+---
+# Node authentication (`tailscale up --authkey ...`) is a one-time manual step
+# and is intentionally not automated -- see README.md.
+- name: Configure tailscale
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        key: tailscale.settings.log_stderr
+        value: '1'
+      - command: set
+        key: tailscale.settings.log_stdout
+        value: '1'
+      - command: set
+        key: tailscale.settings.port
+        value: "{{ router_tailscale_port }}"
+      - command: set
+        key: tailscale.settings.state_file
+        value: "{{ router_tailscale_state_file }}"
+      - command: set
+        key: tailscale.settings.fw_mode
+        value: nftables
+      - command: set
+        key: tailscale.settings.accept_routes
+        value: '0'
+      - command: set
+        key: tailscale.settings.advertise_exit_node
+        value: "{{ router_tailscale_advertise_exit_node | bool | ternary('1', '0') }}"
+      - command: set
+        key: tailscale.settings.exit_node_allow_lan_access
+        value: '1'
+      - command: set
+        key: tailscale.settings.runwebclient
+        value: '0'
+      - command: set
+        key: tailscale.settings.nosnat
+        value: '0'
+      - command: set
+        key: tailscale.settings.shields_up
+        value: '0'
+      - command: set
+        key: tailscale.settings.ssh
+        value: "{{ router_tailscale_ssh | bool | ternary('1', '0') }}"
+      - command: set
+        key: tailscale.settings.disable_magic_dns
+        value: "{{ router_tailscale_disable_magic_dns | bool | ternary('1', '0') }}"
+      - command: set
+        key: tailscale.settings.advertise_routes
+        value: "{{ router_tailscale_advertise_routes }}"
+  notify: restart tailscale
+
+- name: Ensure tailscale service is enabled and running
+  community.openwrt.service:
+    name: tailscale
+    enabled: true
+    state: started

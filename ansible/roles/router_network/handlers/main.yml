@@ -1,0 +1,6 @@
+---
+- name: Reload network
+  community.openwrt.service:
+    name: network
+    state: reloaded
+  listen: reload network

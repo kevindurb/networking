@@ -1,0 +1,9 @@
+---
+router_dhcp_start: '10'
+router_dhcp_limit: '200'
+router_dhcp_leasetime: '12h'
+
+# Domain-specific forwarders for dnsmasq. Queries for `ts.net` go to the
+# Tailscale MagicDNS resolver.
+router_dhcp_dns_servers:
+  - /ts.net/100.100.100.100

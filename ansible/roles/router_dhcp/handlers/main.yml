@@ -1,0 +1,12 @@
+---
+- name: Reload dnsmasq
+  community.openwrt.service:
+    name: dnsmasq
+    state: reloaded
+  listen: reload dnsmasq
+
+- name: Restart odhcpd
+  community.openwrt.service:
+    name: odhcpd
+    state: restarted
+  listen: restart odhcpd

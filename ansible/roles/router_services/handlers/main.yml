@@ -1,0 +1,18 @@
+---
+- name: Restart dropbear
+  community.openwrt.service:
+    name: dropbear
+    state: restarted
+  listen: restart dropbear
+
+- name: Restart uhttpd
+  community.openwrt.service:
+    name: uhttpd
+    state: restarted
+  listen: restart uhttpd
+
+- name: Restart miniupnpd
+  community.openwrt.service:
+    name: miniupnpd
+    state: restarted
+  listen: restart miniupnpd

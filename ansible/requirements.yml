@@ -3,6 +3,7 @@ roles: []
 
 collections:
   - community.general
-  # - community.openwrt
-  - git+https://github.com/ansible-collections/community.openwrt
+  # Pinned: the uci/apk/service modules used here rely on the 1.9.0 ucode
+  # implementation (batched `operations`, native `apk` module).
+  - git+https://github.com/ansible-collections/community.openwrt.git,1.9.0
   - ansible.posix

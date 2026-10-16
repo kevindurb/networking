@@ -1,0 +1,87 @@
+---
+- name: Configure network globals
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        key: network.globals.ula_prefix
+        value: "{{ router_network_ula_prefix }}"
+      - command: set
+        key: network.globals.packet_steering
+        value: '1'
+  notify: reload network
+
+- name: Configure lan bridge device
+  community.openwrt.uci:
+    command: section
+    config: network
+    type: device
+    find:
+      name: br-lan
+    value:
+      name: br-lan
+      type: bridge
+      ports: "{{ router_network_lan_ports }}"
+      ipv6: '0'
+    autocommit: true
+  notify: reload network
+
+- name: Configure lan interface
+  community.openwrt.uci:
+    command: set
+    config: network
+    section: lan
+    type: interface
+    value:
+      device: "{{ router_network_lan_device }}"
+      proto: static
+      ipaddr: "{{ router_network_lan_ipaddr }}"
+      netmask: "{{ router_network_lan_netmask }}"
+      ip6assign: '60'
+      delegate: '0'
+    autocommit: true
+  notify: reload network
+
+- name: Configure wan interface
+  community.openwrt.uci:
+    command: set
+    config: network
+    section: wan
+    type: interface
+    value:
+      device: "{{ router_network_wan_device }}"
+      proto: dhcp
+      peerdns: '0'
+      dns: "{{ router_network_wan_dns }}"
+    autocommit: true
+  notify: reload network
+
+# `command: section` (not `set`) is required to create a section with the
+# correct type; `set` would create it with the section name as its type.
+- name: Configure wan6 interface
+  community.openwrt.uci:
+    command: section
+    config: network
+    type: interface
+    name: wan6
+    value:
+      device: "{{ router_network_wan_device }}"
+      proto: dhcpv6
+      reqaddress: try
+      reqprefix: auto
+      peerdns: '0'
+      dns: "{{ router_network_wan6_dns }}"
+    autocommit: true
+  notify: reload network
+
+- name: Configure tailscale interface
+  community.openwrt.uci:
+    command: section
+    config: network
+    type: interface
+    name: tailscale
+    value:
+      proto: none
+      device: tailscale0
+    autocommit: true
+  notify: reload network

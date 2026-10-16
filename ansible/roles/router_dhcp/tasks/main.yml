@@ -1,0 +1,77 @@
+---
+# NOTE: the beaver-cloud.xyz forwarder (192.168.42.53) was removed here because
+# that domain is no longer in use. It may still be present on the router until
+# this play runs (or is cleared manually with `uci del_list`).
+
+- name: Configure dnsmasq
+  community.openwrt.uci:
+    command: section
+    config: dhcp
+    type: dnsmasq
+    find:
+      domain: lan
+    value:
+      domainneeded: '1'
+      localise_queries: '1'
+      rebind_protection: '0'
+      local: /lan/
+      domain: lan
+      expandhosts: '1'
+      cachesize: '1000'
+      authoritative: '1'
+      readethers: '1'
+      leasefile: /tmp/dhcp.leases
+      resolvfile: /tmp/resolv.conf.d/resolv.conf.auto
+      localservice: '0'
+      ednspacket_max: '1232'
+      server: "{{ router_dhcp_dns_servers }}"
+    autocommit: true
+  notify: reload dnsmasq
+
+- name: Configure lan dhcp server
+  community.openwrt.uci:
+    command: set
+    config: dhcp
+    section: lan
+    type: dhcp
+    value:
+      interface: lan
+      start: "{{ router_dhcp_start }}"
+      limit: "{{ router_dhcp_limit }}"
+      leasetime: "{{ router_dhcp_leasetime }}"
+      dhcpv4: server
+      dhcpv6: server
+      ra: server
+      ra_flags:
+        - managed-config
+        - other-config
+    autocommit: true
+  notify: reload dnsmasq
+
+- name: Ignore dhcp on wan
+  community.openwrt.uci:
+    command: set
+    config: dhcp
+    section: wan
+    type: dhcp
+    value:
+      interface: wan
+      ignore: '1'
+    autocommit: true
+  notify: reload dnsmasq
+
+- name: Configure odhcpd
+  community.openwrt.uci:
+    command: set
+    config: dhcp
+    section: odhcpd
+    type: odhcpd
+    value:
+      maindhcp: '0'
+      leasefile: /tmp/odhcpd.leases
+      leasetrigger: /usr/sbin/odhcpd-update
+      loglevel: '4'
+      piodir: /tmp/odhcpd-piodir
+      hostsdir: /tmp/hosts
+    autocommit: true
+  notify: restart odhcpd

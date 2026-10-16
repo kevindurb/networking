@@ -1,0 +1,23 @@
+---
+# LAN
+router_network_lan_device: br-lan
+router_network_lan_ports:
+  - eth0
+router_network_lan_ipaddr: 192.168.1.1
+router_network_lan_netmask: 255.255.0.0
+
+# WAN (upstream is DHCP; the address is assigned by the ISP)
+router_network_wan_device: eth1
+router_network_wan_dns:
+  - 1.1.1.1
+  - 1.0.0.1
+  - 8.8.8.8
+  - 8.8.4.4
+router_network_wan6_dns:
+  - 2606:4700:4700::1111
+  - 2606:4700:4700::1001
+  - 2001:4860:4860::8888
+  - 2001:4860:4860::8844
+
+# ULA prefix is generated on first boot; pinned here so the play is declarative.
+router_network_ula_prefix: fdc0:78f1:8740::/48

@@ -1,0 +1,60 @@
+---
+- name: Configure firewall defaults
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        key: firewall.@defaults[0].input
+        value: REJECT
+      - command: set
+        key: firewall.@defaults[0].output
+        value: ACCEPT
+      - command: set
+        key: firewall.@defaults[0].forward
+        value: REJECT
+      - command: set
+        key: firewall.@defaults[0].synflood_protect
+        value: '1'
+  notify: reload firewall
+
+- name: Configure firewall zones
+  community.openwrt.uci:
+    command: section
+    config: firewall
+    type: zone
+    find:
+      name: "{{ item.name }}"
+    value: "{{ item }}"
+    autocommit: true
+  loop:
+    - "{{ router_firewall_lan_zone }}"
+    - "{{ router_firewall_wan_zone }}"
+    - "{{ router_firewall_tailscale_zone }}"
+  loop_control:
+    label: "{{ item.name }}"
+  notify: reload firewall
+
+- name: Configure firewall forwardings
+  community.openwrt.uci:
+    command: section
+    config: firewall
+    type: forwarding
+    find: "{{ item }}"
+    value: "{{ item }}"
+    autocommit: true
+  loop: "{{ router_firewall_forwardings }}"
+  notify: reload firewall
+
+- name: Configure firewall rules
+  community.openwrt.uci:
+    command: section
+    config: firewall
+    type: rule
+    find:
+      name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    autocommit: true
+  loop: "{{ router_firewall_rules }}"
+  loop_control:
+    label: "{{ item.name }}"
+  notify: reload firewall

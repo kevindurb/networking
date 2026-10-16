@@ -1,0 +1,6 @@
+---
+- name: Restart tailscale
+  community.openwrt.service:
+    name: tailscale
+    state: restarted
+  listen: restart tailscale

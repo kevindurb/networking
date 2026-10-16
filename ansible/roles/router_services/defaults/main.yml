@@ -1,0 +1,26 @@
+---
+router_services_dropbear_port: 22
+
+router_services_uhttpd_listen_http:
+  - 0.0.0.0:80
+  - '[::]:80'
+router_services_uhttpd_listen_https:
+  - 0.0.0.0:443
+  - '[::]:443'
+
+router_services_upnpd_internal_iface: lan
+router_services_upnpd_port: 5000
+# `uuid` is intentionally not pinned; miniupnpd generates one on first start.
+router_services_upnpd_perm_rules:
+  - action: allow
+    ext_ports: 1024-65535
+    int_addr: 0.0.0.0/0
+    int_ports: 1024-65535
+    comment: Allow high ports
+  - action: deny
+    ext_ports: 0-65535
+    int_addr: 0.0.0.0/0
+    int_ports: 0-65535
+    comment: Default deny
+
+router_services_attendedsysupgrade_url: https://sysupgrade.openwrt.org

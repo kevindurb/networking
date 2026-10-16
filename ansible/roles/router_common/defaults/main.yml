@@ -1,0 +1,10 @@
+---
+# System identity and logging.
+router_common_hostname: router
+router_common_timezone: MST7MDT,M3.2.0,M11.1.0
+router_common_zonename: America/Denver
+router_common_ntp_servers:
+  - 0.openwrt.pool.ntp.org
+  - 1.openwrt.pool.ntp.org
+  - 2.openwrt.pool.ntp.org
+  - 3.openwrt.pool.ntp.org
